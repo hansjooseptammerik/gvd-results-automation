@@ -1,11 +1,7 @@
-from __future__ import annotations
-
 import json
 import os
-from typing import Any, Dict, Optional
-
+from typing import Any, Dict
 import requests
-
 
 def update_shop_metafield_json(
     payload: Dict[str, Any],
@@ -15,12 +11,6 @@ def update_shop_metafield_json(
     key: str = "gvd_stats_json",
     api_version: str = "2025-01",
 ) -> None:
-    """Upsert a Shop JSON metafield (shop-level metafield).
-
-    Requires an Admin API access token (custom app or private app equivalent).
-    """
-
-    # Normalize shop domain
     if shop.startswith("https://"):
         shop = shop.replace("https://", "")
     if shop.endswith("/"):
@@ -33,7 +23,6 @@ def update_shop_metafield_json(
         "Accept": "application/json",
     }
 
-    # 1) Find existing metafield
     params = {"namespace": namespace, "key": key}
     r = requests.get(f"{base}/metafields.json", headers=headers, params=params, timeout=30)
     r.raise_for_status()
@@ -50,7 +39,6 @@ def update_shop_metafield_json(
         body = {"metafield": {"namespace": namespace, "key": key, "type": "json", "value": value}}
         c = requests.post(f"{base}/metafields.json", headers=headers, data=json.dumps(body), timeout=30)
         c.raise_for_status()
-
 
 def maybe_update_shopify(payload: Dict[str, Any]) -> bool:
     shop = os.getenv("SHOPIFY_SHOP")
