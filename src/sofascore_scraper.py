@@ -101,7 +101,7 @@ async def fetch_player_matches(
 
     api = SofascoreAPI()
 
-    search = Search(api)
+    api = SofascoreAPI() search = Search(api, player_name) res = await search.search_all(player_name)
     res = await search.search_all(player_name)
 
     # The wrapper returns a dict with keys like 'players', 'events', etc.
