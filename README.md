@@ -1,31 +1,25 @@
-# GVD Darts Results Automation
+# Gian van Veen darts stats automation
 
-See projekt loeb Sofascore'ist Gian van Veeni viimaseid 6 tulemust ja 6 järgmist mängu ning saadab info Shopify poodi metafieldi, kui token on olemas. Kui token puudub, salvestab info `output/gvd_stats.json` faili.
+See projekt scrapib Sofascore’ist Gian van Veeni viimased ja tulevased darts-mängud iga päev ning salvestab need JSON failina; kui Shopify tokenid lisatakse, laeb automaatselt Shopify metafieldi.
 
-## Lokaalne käivitamine
+## Paigaldus
 
-1. `pip install -r requirements.txt`
-2. Lisa `.env` fail keskkonnamuutujatega kui vaja (või kasuta keskkonnamuutujaid otse).
-3. Käivita:
-   ```
-   python src/main.py
-   ```
-## GitHub Actions automaatsus
+- Nõuab Chrome’i ja Chromedriverit serveris/runneris (GitHub Actions script teeb seda).
+- Lokaalselt installi:
+    pip install -r requirements.txt
+    python src/main.py
 
-- Jookseb igal öösel Eesti aja järgi südaööl.
+## Käsitsi käivitamine
 
-## Vajalikud keskkonnamuutujad
+- GitHub Actions > Daily GVD update (SofaScore) > Run workflow
 
-- PLAYER_NAME (nt. Gian van Veen)
-- SHOPIFY_SHOP (kui vaja)
-- SHOPIFY_TOKEN (kui vaja)
-- SHOPIFY_NAMESPACE (valikud: custom, ... või oma metafieldi namespace)
-- SHOPIFY_KEY (valikuline, default: gvd_stats_json)
-- SHOPIFY_API_VERSION (default: 2025-01)
+## Võtmed:
+- Shopify tokenid pole kohustuslikud; kui puudu, salvestab ainult JSON.
+- Scrapingu loogika töötab Seleniumi päris Chrome brauseriga (headless).
 
-## Struktuur
-
-- src/main.py - põhiskript
-- src/sofascore_scraper.py - Sofascore'ist lugemine
-- src/shopify_update.py - Shopify andmeülekanne
-- output/gvd_stats.json - väljundfail (iga jooksuga üle kirjutatakse)
+## Failid:
+- .github/workflows/daily.yml – GitHub Actions töövoog
+- requirements.txt
+- src/sofascore_scraper.py
+- src/main.py
+- src/shopify_update.py
