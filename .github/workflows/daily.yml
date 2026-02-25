@@ -3,7 +3,6 @@ name: Daily GVD update (SofaScore)
 on:
   workflow_dispatch:
   schedule:
-    # 22:00 UTC == 00:00 Eesti aeg (vt. cron = UTC!)
     - cron: '0 22 * * *'
 
 jobs:
@@ -12,16 +11,12 @@ jobs:
     timeout-minutes: 25
 
     steps:
-      - name: Install Chrome & Chromedriver
+      - name: Install Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip
+          sudo apt-get install -y wget
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
-          wget -O chromedriver.zip https://chromedriver.storage.googleapis.com/121.0.6167.85/chromedriver_linux64.zip
-          unzip chromedriver.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
 
       - name: Checkout
         uses: actions/checkout@v4
