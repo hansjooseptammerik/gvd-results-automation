@@ -1,39 +1,31 @@
-# GVD Results Automation (SofaScore → JSON → Shopify)
+# GVD Darts Results Automation
 
-This repo fetches **Gian van Veen** matches from **SofaScore** and generates a JSON payload suitable for a Shopify **Shop metafield (type: JSON)**.
+See projekt loeb Sofascore'ist Gian van Veeni viimaseid 6 tulemust ja 6 järgmist mängu ning saadab info Shopify poodi metafieldi, kui token on olemas. Kui token puudub, salvestab info `output/gvd_stats.json` faili.
 
-It writes:
-- `output/gvd_stats.json`
+## Lokaalne käivitamine
 
-Payload format:
-```json
-{
-  "last_updated": "YYYY-MM-DD HH:MM",
-  "upcoming": [ { ...match... } ],
-  "results": [ { ...match... } ]
-}
-```
+1. `pip install -r requirements.txt`
+2. Lisa `.env` fail keskkonnamuutujatega kui vaja (või kasuta keskkonnamuutujaid otse).
+3. Käivita:
+   ```
+   python src/main.py
+   ```
+## GitHub Actions automaatsus
 
-## Local run
-```bash
-pip install -r requirements.txt
-python -m playwright install chromium
-python src/main.py
-```
+- Jookseb igal öösel Eesti aja järgi südaööl.
 
-## GitHub Actions
-Workflow: `.github/workflows/daily.yml`
-- Runs daily at **22:00 UTC** (≈ **00:00 Estonia time** in winter)
-- Uploads the JSON as an artifact
+## Vajalikud keskkonnamuutujad
 
-### Enable Shopify update later
-Add repo secrets:
-- `SHOPIFY_SHOP` = `yourstore.myshopify.com`
-- `SHOPIFY_TOKEN` = Admin API access token
+- PLAYER_NAME (nt. Gian van Veen)
+- SHOPIFY_SHOP (kui vaja)
+- SHOPIFY_TOKEN (kui vaja)
+- SHOPIFY_NAMESPACE (valikud: custom, ... või oma metafieldi namespace)
+- SHOPIFY_KEY (valikuline, default: gvd_stats_json)
+- SHOPIFY_API_VERSION (default: 2025-01)
 
-Optional secrets:
-- `SHOPIFY_NAMESPACE` (default `custom`)
-- `SHOPIFY_KEY` (default `gvd_stats_json`)
-- `SHOPIFY_API_VERSION` (default `2025-01`)
+## Struktuur
 
-If secrets are missing, the workflow still generates the JSON and uploads it as an artifact.
+- src/main.py - põhiskript
+- src/sofascore_scraper.py - Sofascore'ist lugemine
+- src/shopify_update.py - Shopify andmeülekanne
+- output/gvd_stats.json - väljundfail (iga jooksuga üle kirjutatakse)
