@@ -1,4 +1,5 @@
-import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import datetime
 
@@ -21,13 +22,21 @@ def parse_matches(soup_section, limit, section_name):
     return matches
 
 def get_player_events_and_results(player_name, upcoming_limit=6, results_limit=6):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-    r = requests.get(PLAYER_SOFA_URL, headers=headers, timeout=20)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.content, "html.parser")
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument(
+        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
 
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(PLAYER_SOFA_URL)
+    html = driver.page_source
+    driver.quit()
+
+    soup = BeautifulSoup(html, "html.parser")
     results_section = soup.find("section", attrs={"id": "player-matches"})
     upcoming_section = soup.find("section", attrs={"id": "player-upcoming-matches"})
     results = []
