@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import datetime
+import chromedriver_autoinstaller
 
 PLAYER_SOFA_URL = "https://www.sofascore.com/darts/player/van-veen-gian/410446"
 
@@ -22,6 +23,7 @@ def parse_matches(soup_section, limit, section_name):
     return matches
 
 def get_player_events_and_results(player_name, upcoming_limit=6, results_limit=6):
+    chromedriver_autoinstaller.install()
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
