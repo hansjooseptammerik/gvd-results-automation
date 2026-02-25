@@ -1,4 +1,3 @@
 sofascore-wrapper
 requests
-shopifyapi  # or your preferred Python Shopify library
 python-dotenv
