@@ -1,14 +1,15 @@
-name: Daily GVD update (SofaScore)
+name: Daily Gian Van Veen Featured Event
 
 on:
   workflow_dispatch:
   schedule:
+    # Näiteks 22:00 UTC, ehk 00:00 Eesti aeg (talvel UTC+2)
     - cron: '0 22 * * *'
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -19,27 +20,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run updater
-        env:
-          PLAYER_NAME: "Gian van Veen"
-          RESULTS_LIMIT: "6"
-          UPCOMING_LIMIT: "6"
-          TIMEZONE: "Europe/Tallinn"
-          SHOPIFY_SHOP: ${{ secrets.SHOPIFY_SHOP }}
-          SHOPIFY_TOKEN: ${{ secrets.SHOPIFY_TOKEN }}
-          SHOPIFY_NAMESPACE: ${{ secrets.SHOPIFY_NAMESPACE }}
-          SHOPIFY_KEY: ${{ secrets.SHOPIFY_KEY }}
-          SHOPIFY_API_VERSION: ${{ secrets.SHOPIFY_API_VERSION }}
+      - name: Run Featured Event Scraper
         run: |
-          python src/main.py
+          python src/gvd_featured_scraper.py
 
-      - name: Upload JSON artifact
+      - name: Upload Featured JSON artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gvd_stats_json
-          path: output/gvd_stats.json
+          name: gvd_featured_event_json
+          path: output/gvd_featured_event.json
