@@ -1,68 +1,36 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from bs4 import BeautifulSoup
+import requests
 import datetime
-import chromedriver_autoinstaller
-import os
-import time
 
-PLAYER_SOFA_URL = "https://www.sofascore.com/darts/player/van-veen-gian/410446"
+PLAYER_ID = 410446
+API_BASE_URL = "https://api.sofascore.com/api/v1/player"
 
-def parse_matches(soup_section, limit, section_name):
-    matches = []
-    rows = soup_section.select("div.styles__MatchCardWrapper-sc-1qsabs6-0")
-    for row in rows[:limit]:
-        match = {}
-        date_elem = row.select_one("div.sc-ecffda1a-7")
-        match["date"] = date_elem.text.strip() if date_elem else ""
-        event_elem = row.select_one("div.sc-ecffda1a-13")
-        match["event"] = event_elem.text.strip() if event_elem else ""
-        home_elem = row.select_one("div.styles__OpponentName-sc-1qsabs6-13")
-        match["opponent"] = home_elem.text.strip() if home_elem else ""
-        score_elem = row.select_one("div.styles__Score-sc-1qsabs6-16")
-        match["score"] = score_elem.text.strip() if score_elem else ""
-        matches.append(match)
-    return matches
+def fetch_player_results(player_id, limit=6):
+    url = f"{API_BASE_URL}/{player_id}/events/last/0"
+    headers = {
+        'User-Agent': 'Mozilla/5.0'
+    }
+    resp = requests.get(url, headers=headers, timeout=10)
+    data = resp.json()
+    results = data.get("events", [])[:limit]
+    return results
 
-def get_player_events_and_results(player_name, upcoming_limit=6, results_limit=6):
-    chromedriver_autoinstaller.install()
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument("--window-size=1920,1080")
-    chrome_options.add_argument(
-        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    )
+def fetch_player_upcoming(player_id, limit=6):
+    url = f"{API_BASE_URL}/{player_id}/events/next/0"
+    headers = {
+        'User-Agent': 'Mozilla/5.0'
+    }
+    resp = requests.get(url, headers=headers, timeout=10)
+    data = resp.json()
+    events = data.get("events", [])[:limit]
+    return events
 
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(PLAYER_SOFA_URL)
-    time.sleep(4)  # Oota JS sisu laadimist!
-
-    html = driver.page_source
-
-    # Dumpi HTML output kausta, et saaksid artifactina alla laadida!
-    os.makedirs("output", exist_ok=True)
-    with open("output/vanveen_fullpage.html", "w", encoding="utf-8") as fp:
-        fp.write(html)
-
-    driver.quit()
-
-    soup = BeautifulSoup(html, "html.parser")
-    results_section = soup.find("section", attrs={"id": "player-matches"})
-    upcoming_section = soup.find("section", attrs={"id": "player-upcoming-matches"})
-    results = []
-    upcoming = []
-    if results_section:
-        results = parse_matches(results_section, results_limit, "results")
-    if upcoming_section:
-        upcoming = parse_matches(upcoming_section, upcoming_limit, "upcoming")
-
-    out = {
+def get_player_events_and_results(player_name="Gian van Veen", results_limit=6, upcoming_limit=6):
+    results = fetch_player_results(PLAYER_ID, results_limit)
+    upcoming = fetch_player_upcoming(PLAYER_ID, upcoming_limit)
+    return {
+        "player_id": PLAYER_ID,
         "player_name": player_name,
-        "player_profile_url": PLAYER_SOFA_URL,
         "results": results,
         "upcoming": upcoming,
         "scraped_at": datetime.datetime.now().isoformat()
     }
-    return out
