@@ -3,6 +3,8 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import datetime
 import chromedriver_autoinstaller
+import os
+import time
 
 PLAYER_SOFA_URL = "https://www.sofascore.com/darts/player/van-veen-gian/410446"
 
@@ -35,7 +37,15 @@ def get_player_events_and_results(player_name, upcoming_limit=6, results_limit=6
 
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(PLAYER_SOFA_URL)
+    time.sleep(4)  # Oota JS sisu laadimist!
+
     html = driver.page_source
+
+    # Dumpi HTML output kausta, et saaksid artifactina alla laadida!
+    os.makedirs("output", exist_ok=True)
+    with open("output/vanveen_fullpage.html", "w", encoding="utf-8") as fp:
+        fp.write(html)
+
     driver.quit()
 
     soup = BeautifulSoup(html, "html.parser")
