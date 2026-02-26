@@ -50,3 +50,9 @@ jobs:
         with:
           name: gvd_stats_json
           path: output/gvd_stats.json
+
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanveen_fullpage_html
+          path: output/vanveen_fullpage.html
