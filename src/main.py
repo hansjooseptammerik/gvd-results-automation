@@ -1,6 +1,6 @@
 import os
 import json
-from sofascore_scraper import get_player_events_and_results
+from sofascore_api_scraper import get_player_events_and_results  # UUS import!
 from shopify_update import maybe_update_shopify
 
 def main():
